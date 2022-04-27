@@ -1,0 +1,126 @@
+
+  {
+  "mainFacet": "GLOSSARY",
+  "searchGroups": [
+    {
+      "operator": "START",
+      "active": true,
+      "searches": [
+        {
+          "operator": "START",
+          "active": true,
+          "facetId": "PROJECT",
+          "filterGroups": [
+            {
+              "operator": "START",
+              "filters": [
+                {
+                  "operator": "START",
+                  "type": "OPTIONS",
+                  "properties": {
+                    "field": "ID",
+                    "value": "77"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "operator": "AND",
+          "active": true,
+          "facetId": "SYSTEM",
+          "filterGroups": [
+            {
+              "operator": "START",
+              "filters": [
+                {
+                  "operator": "START",
+                  "type": "OPTIONS",
+                  "properties": {
+                    "field": "ID",
+                    "value": "8"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "operator": "AND",
+          "active": true,
+          "facetId": "Glossary",
+          "filterGroups": [
+            {
+              "operator": "START",
+              "filters": [
+                {
+                  "operator": "START",
+                  "type": "value",
+                  "properties": {
+                    "field": "name",
+                    "value": "менеджера"
+                  }
+                },
+                {
+                  "operator": "AND",
+                  "type": "OPTIONS",
+                  "properties": {
+                    "field": "axonStatus",
+                    "value": "1,3"
+                  }
+                },
+                {
+                  "operator": "AND",
+                  "type": "OPTIONS",
+                  "properties": {
+                    "field": "accessControl",
+                    "value": "1"
+                  }
+                },
+                {
+                  "operator": "AND",
+                  "type": "OPTIONS",
+                  "properties": {
+                    "field": "type",
+                    "value": "1"
+                  }
+                },
+                {
+                  "operator": "AND",
+                  "type": "OPTIONS",
+                  "properties": {
+                    "field": "Владелецданных",
+                    "value": "83"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "searchScopes": [
+    {
+      "facetId": "GLOSSARY",
+      "properties": {
+        "offset": "0",
+        "limit": "9999999",
+        "childrenLevel": "5"
+      }
+    },
+    {
+      "facetId": "SYSTEM"
+
+    },
+    {
+      "facetId": "PROJECT",
+      "properties": {
+        "offset": "0",
+        "limit": "9999999",
+        "childrenLevel": "5"
+      }
+    }
+  ]
+}
