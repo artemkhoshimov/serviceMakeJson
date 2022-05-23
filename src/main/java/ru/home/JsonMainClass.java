@@ -170,17 +170,68 @@ public class JsonMainClass {
         return mapFields;
     }
 
-    private static  void makeRequest(JSONObject jsonObject){
-    JSONArray jsonArray = (JSONArray) jsonObject.get("filter");
-    JSONObject textObj  = (JSONObject) jsonObject.get("paramsText");
-    String text =  textObj.getString("text");
-    JSONArray filterArray = jsonObject.getJSONArray("filter");
-    List<Object> listFilter =  filterArray.toList();
-    Map<Object,Object> m =  new HashMap<>();
-    for (Object o:listFilter)
-    {   m = (Map<Object, Object>) o;
+    private static void makeRequest(JSONObject jsonObject) {
+        JSONArray jsonArray = (JSONArray) jsonObject.get("filter");
+        JSONObject textObj = (JSONObject) jsonObject.get("paramsText");
+        String text = textObj.getString("text");
+        JSONArray filterArray = jsonObject.getJSONArray("filter");
+        List<Object> listFilter = filterArray.toList();
+        Map<Object, Object> m = new HashMap<>();
+        Map<Object, Object> mForMakeJSON = new HashMap<>();
+        for (Object o : listFilter) {
+            m = (Map<Object, Object>) o;
+            mForMakeJSON.putAll(m);
+        }
+        makeJSON(mForMakeJSON);
     }
-        System.out.println(m);
+
+    private static JSONObject makeJSON(Map<Object, Object> mj) {
+
+        /* Инициализация фильтров начало*/
+        List<Object> systemList = mj.containsKey("typeSystemObjects") ? (List<Object>) mj.get("typeSystemObjects") : new ArrayList<>();
+        List<Object> ownerStreamList = mj.containsKey("typeOwnerStreamObjects") ? (List<Object>) mj.get("typeOwnerStreamObjects") : new ArrayList<>();
+        List<Object> ownerBankList = mj.containsKey("typeOwnerBankObject") ? (List<Object>) mj.get("typeOwnerBankObject") : new ArrayList<>();
+        List<Object> typeOfObjectsList = mj.containsKey("typeOfObjects") ? (List<Object>) mj.get("typeOfObjects") : new ArrayList<>();
+        /* Инициализация фильтров конец */
+
+        /*шаблоны полей  начало*/
+        JSONObject operatorStartJO = new JSONObject();
+        operatorStartJO.put("operator", "START");
+        JSONObject operatorAndJO = new JSONObject();
+        operatorAndJO.put("operator", "AND");
+        JSONObject activeTrueJO = new JSONObject();
+        activeTrueJO.put("active", "true");
+        JSONObject facetIdJOSystem = new JSONObject();
+        facetIdJOSystem.put("facetId", "SYSTEM");
+        JSONObject facetIdJOProject = new JSONObject();
+        facetIdJOProject.put("facetId", "PROJECT");
+        JSONObject facetIdJOGlossary = new JSONObject();
+        facetIdJOGlossary.put("facetId", "GLOSSARY");
+        JSONObject facetIdDataQuality = new JSONObject();
+        facetIdDataQuality.put("facetId", "DATAQUALITY");
+        /*шаблоны полей конец*/
+
+        /*Создаем основной объект*/
+        JSONObject resultJsonObject = new JSONObject();
+        JSONArray searchGroupsJSONArray = new JSONArray();
+
+        resultJsonObject.put("mainFacet", "Glossary");
+        resultJsonObject.put("searchGroups", searchGroupsJSONArray);
+
+        searchGroupsJSONArray.put(operatorStartJO);
+        searchGroupsJSONArray.put(activeTrueJO);
+
+        /*Создаем массив searches*/
+        JSONObject searchesObject = new JSONObject();
+        JSONArray searchesJSONArray = new JSONArray();
+        searchesObject.put("searches",searchesJSONArray);
+
+        /*заполняем массив searches */
+
+
+        return resultJsonObject;
+
+
     }
 
 }
