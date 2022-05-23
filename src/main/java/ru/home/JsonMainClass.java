@@ -5,13 +5,14 @@ import org.json.JSONObject;
 import ru.home.entity.StreamOwnerProjectEntity;
 import ru.home.entity.SystemEntity;
 import ru.home.entity.dto.manyFilterResultEntity.ResultEntityDTOForManyFilter;
-import ru.home.entity.dto.ownerStreamEntity.ResultDTOOwnerStreamEntity;
-import ru.home.entity.dto.ownerStreamEntity.TextField;
 import ru.home.fileService.FileService;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JsonMainClass {
     static List<StreamOwnerProjectEntity> streamOwnerProjectEntityList;
@@ -39,136 +40,8 @@ public class JsonMainClass {
         JSONObject jsonObject = new JSONObject(data);
         makeRequest(jsonObject);
 
-
-        /*тестовый ответ и его обработка*/
-//        String data = fileService.getArrayFromFile("responseFromManyFilters#4.json");
-//        JSONArray jsonArray = new JSONArray(data);
-//        makeStreamMap(jsonArray);
-//        unionGlossary(numberGlossary, jsonArray);
-//        makeResultArray(resultDTOManyFilterList);
-        System.out.println(jsonObject);
     }
 
-    private static void makeResultArray(List<ResultEntityDTOForManyFilter> resultDTOManyFilterList) {
-        for (ResultEntityDTOForManyFilter rs : resultDTOManyFilterList) {
-            resultArray.put(rs.toJSON());
-        }
-
-    }
-
-    private static void makeStreamMap(JSONArray jsonArray) {
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-            String facetID = (String) jsonObject.get("facetId");
-
-            if (facetID.equals("PROJECT")) {
-                JSONArray itemArray = (JSONArray) jsonObject.get("items");
-                streamOwnerProjectEntityList = new ArrayList<>();
-                JSONArray projectFields = (JSONArray) jsonObject.get("fields");
-                SortedMap<String, Integer> fieldsMap = makeMapFields(projectFields);
-                for (int j = 0; j < itemArray.length(); j++) {
-                    JSONObject itemObject = (JSONObject) itemArray.get(j);
-                    JSONArray values = (JSONArray) itemObject.get("values");
-                    String nameProject = (String) values.get(fieldsMap.get("name"));
-                    String idProject = (String) values.get(fieldsMap.get("id"));
-                    streamOwnerProjectEntityList.add(new StreamOwnerProjectEntity(idProject, null, nameProject));
-                }
-            }
-            if (facetID.equals("SYSTEM")) {
-                JSONArray itemArray = (JSONArray) jsonObject.get("items");
-                JSONArray systemFields = (JSONArray) jsonObject.get("fields");
-                SortedMap<String, Integer> fieldsMap = makeMapFields(systemFields);
-                systemEntityList = new ArrayList<>();
-                for (int j = 0; j < itemArray.length(); j++) {
-                    JSONObject itemObject = (JSONObject) itemArray.get(j);
-                    JSONArray values = (JSONArray) itemObject.get("values");
-                    String nameSystem = (String) values.get(fieldsMap.get("name"));
-                    String idSystem = (String) values.get(fieldsMap.get("id"));
-                    String idRISSystem = (String) values.get(fieldsMap.get("IDRIS"));
-                    systemEntityList.add(new SystemEntity(idSystem, null, nameSystem, idRISSystem));
-                }
-                System.out.println(systemEntityList);
-            }
-
-            if (facetID.equals("GLOSSARY")) {
-                numberGlossary = i;
-            }
-        }
-    }
-
-    private static void unionGlossary(int numberGlossary, JSONArray jsonArray) {
-        resultDTOManyFilterList = new ArrayList<>();
-        JSONObject jsonObject = (JSONObject) jsonArray.get(numberGlossary);
-        JSONArray itemArray = (JSONArray) jsonObject.get("items");
-        JSONArray glossaryFields = (JSONArray) jsonObject.get("fields");
-        SortedMap<String, Integer> fieldsMap = makeMapFields(glossaryFields);
-        for (int j = 0; j < itemArray.length(); j++) {
-            streamOwnerPrivateProjectEntityList = new ArrayList<>();
-            systemPrivateEntityList = new ArrayList<>();
-            JSONObject itemObject = (JSONObject) itemArray.get(j);
-            JSONArray values = (JSONArray) itemObject.get("values");
-            String title = (String) values.get(fieldsMap.get("name"));
-            String id = (String) values.get(fieldsMap.get("id"));
-            String description = (String) values.get(fieldsMap.get("description"));
-            String owner = fieldsMap.containsKey("Владелецданных") ? (String) values.get(fieldsMap.get("Владелецданных")) : null;
-            String type = fieldsMap.containsKey("type") ? (String) values.get(fieldsMap.get("type")) : null;
-            List<TextField> fields = new ArrayList<>();
-            String url = "url";
-            String source = "source";
-            JSONArray relationships = itemObject.has("relationships") ? (JSONArray) itemObject.get("relationships") : new JSONArray();
-            for (int k = 0; k < relationships.length(); k++) {
-                JSONObject relObject = (JSONObject) relationships.get(k);
-                String toFacet = (String) relObject.get("toFacet");
-
-                switch (toFacet) {
-
-                    case "SYSTEM": {
-                        JSONArray relSlaveArray = (JSONArray) relObject.get("relationships");
-                        for (Object systemRelObject : relSlaveArray) {
-                            JSONObject idSystemJSon = (JSONObject) systemRelObject;
-                            String idRelSystem = idSystemJSon.getString("id");
-                            String relTypeId = String.valueOf(idSystemJSon.getInt("relTypeId"));
-                            for (SystemEntity systemEntity : systemEntityList) {
-                                if (systemEntity.getId().equals(idRelSystem)) {
-                                    systemPrivateEntityList.add(new SystemEntity(systemEntity.getId(), relTypeId, systemEntity.getName(), systemEntity.getIdRIS()));
-                                }
-                            }
-                        }
-                    }
-                    break;
-
-                    case "PROJECT": {
-                        JSONArray relSlaveArray = (JSONArray) relObject.get("relationships");
-                        for (Object systemRelObject : relSlaveArray) {
-                            JSONObject idSystemJSon = (JSONObject) systemRelObject;
-                            String idRelStream = idSystemJSon.getString("id");
-                            String relTypeId = String.valueOf(idSystemJSon.getInt("relTypeId"));
-                            for (StreamOwnerProjectEntity streamEntity : streamOwnerProjectEntityList) {
-                                if (streamEntity.getId().equals(idRelStream)) {
-                                    if (relTypeId.equals("1")) {
-                                        streamEntity.setRelTypeId(relTypeId);
-                                        streamOwnerPrivateProjectEntityList.add(streamEntity);
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            ResultEntityDTOForManyFilter resultEntityDTOForManyFilter = new ResultEntityDTOForManyFilter(id, title, fields, url, source, type, description,
-                    owner, systemPrivateEntityList, streamOwnerPrivateProjectEntityList);
-            resultDTOManyFilterList.add(resultEntityDTOForManyFilter);
-        }
-    }
-
-    private static SortedMap<String, Integer> makeMapFields(JSONArray fields) {
-        SortedMap<String, Integer> mapFields = new TreeMap<>();
-        for (int i = 0; i < fields.length(); i++) {
-            mapFields.put(fields.getString(i), i);
-        }
-        return mapFields;
-    }
 
     private static void makeRequest(JSONObject jsonObject) {
         JSONArray jsonArray = (JSONArray) jsonObject.get("filter");
@@ -182,52 +55,237 @@ public class JsonMainClass {
             m = (Map<Object, Object>) o;
             mForMakeJSON.putAll(m);
         }
-        makeJSON(mForMakeJSON);
+        makeJSON(mForMakeJSON, text);
     }
 
-    private static JSONObject makeJSON(Map<Object, Object> mj) {
+    private static JSONObject makeJSON(Map<Object, Object> mj, String text) {
 
         /* Инициализация фильтров начало*/
         List<Object> systemList = mj.containsKey("typeSystemObjects") ? (List<Object>) mj.get("typeSystemObjects") : new ArrayList<>();
-        List<Object> ownerStreamList = mj.containsKey("typeOwnerStreamObjects") ? (List<Object>) mj.get("typeOwnerStreamObjects") : new ArrayList<>();
+        List<String> ownerStreamList = mj.containsKey("typeOwnerStreamObjects") ? (List<String>) mj.get("typeOwnerStreamObjects") : new ArrayList<>();
         List<Object> ownerBankList = mj.containsKey("typeOwnerBankObject") ? (List<Object>) mj.get("typeOwnerBankObject") : new ArrayList<>();
         List<Object> typeOfObjectsList = mj.containsKey("typeOfObjects") ? (List<Object>) mj.get("typeOfObjects") : new ArrayList<>();
+        String ownerStreamFormatArray = ownerStreamList.toString().replaceAll("^\\[|\\]$", "");
+        String systemFormatArray = systemList.toString().replaceAll("^\\[|\\]$", "");
+        String ownerBankFormatArray = ownerBankList.toString().replaceAll("^\\[|\\]$", "");
+        String typeOfObjectsFormatArray = typeOfObjectsList.toString().replaceAll("^\\[|\\]$", "");
         /* Инициализация фильтров конец */
 
         /*шаблоны полей  начало*/
-        JSONObject operatorStartJO = new JSONObject();
-        operatorStartJO.put("operator", "START");
-        JSONObject operatorAndJO = new JSONObject();
-        operatorAndJO.put("operator", "AND");
-        JSONObject activeTrueJO = new JSONObject();
-        activeTrueJO.put("active", "true");
-        JSONObject facetIdJOSystem = new JSONObject();
-        facetIdJOSystem.put("facetId", "SYSTEM");
-        JSONObject facetIdJOProject = new JSONObject();
-        facetIdJOProject.put("facetId", "PROJECT");
-        JSONObject facetIdJOGlossary = new JSONObject();
-        facetIdJOGlossary.put("facetId", "GLOSSARY");
-        JSONObject facetIdDataQuality = new JSONObject();
-        facetIdDataQuality.put("facetId", "DATAQUALITY");
+
+
+        String operator = "operator";
+        String start = "START";
+        String active = "active";
+        String trueField = "true";
+        String facetId = "facetId";
+        String glossary = "GLOSSARY";
+        String type = "type";
+        String options = "OPTIONS";
+        String and = "AND";
+        String field = "field";
+        String value = "value";
         /*шаблоны полей конец*/
 
         /*Создаем основной объект*/
         JSONObject resultJsonObject = new JSONObject();
         JSONArray searchGroupsJSONArray = new JSONArray();
+        JSONArray searchScopesJSONArray = new JSONArray();
 
-        resultJsonObject.put("mainFacet", "Glossary");
+        resultJsonObject.put("mainFacet", glossary);
         resultJsonObject.put("searchGroups", searchGroupsJSONArray);
+        resultJsonObject.put("searchScopes", searchScopesJSONArray);
 
-        searchGroupsJSONArray.put(operatorStartJO);
-        searchGroupsJSONArray.put(activeTrueJO);
-
-        /*Создаем массив searches*/
-        JSONObject searchesObject = new JSONObject();
+        /*создаем первую   и единственную группу поиска*/
+        JSONObject firstGroupObject = new JSONObject();
         JSONArray searchesJSONArray = new JSONArray();
-        searchesObject.put("searches",searchesJSONArray);
+        firstGroupObject.put(operator, start);
+        firstGroupObject.put(active, trueField);
+        firstGroupObject.put("searches", searchesJSONArray);
 
-        /*заполняем массив searches */
 
+        /*добавляем группу поиска */
+        searchGroupsJSONArray.put(firstGroupObject);
+
+        /*создаем подгруппу Глоссария*/
+        JSONObject glossaryUnderGroup = new JSONObject();
+        JSONArray filterGroupsGlossaryArray = new JSONArray();
+        glossaryUnderGroup.put(operator, start);
+        glossaryUnderGroup.put(active, trueField);
+        glossaryUnderGroup.put(facetId, glossary);
+        glossaryUnderGroup.put("filterGroups", filterGroupsGlossaryArray);
+
+        if (ownerStreamList.size() > 0)
+            /*создаем подгруппу Project*/ {
+            JSONObject projectUnderGroup = new JSONObject();
+            JSONArray filterGroupsProjectArray = new JSONArray();
+            projectUnderGroup.put(operator, and);
+            projectUnderGroup.put(active, trueField);
+            projectUnderGroup.put(facetId, "PROJECT");
+            projectUnderGroup.put("filterGroups", filterGroupsProjectArray);
+            searchesJSONArray.put(projectUnderGroup);
+
+            //*создаем фильтр группу для стрима
+            JSONObject filterGroupStreamObject = new JSONObject();
+            JSONArray filterArray = new JSONArray();
+            filterGroupStreamObject.put(operator, start);
+            filterGroupStreamObject.put("filters", filterArray);
+
+            /*добавляем фильтр группу для Стрима*/
+            filterGroupsProjectArray.put(filterGroupStreamObject);
+
+
+            /*создаем поле #1 для стрима*/
+            JSONObject fieldSearch = new JSONObject();
+            JSONObject fieldNameObject = new JSONObject();
+
+            fieldSearch.put(operator, start);
+            fieldSearch.put(type, options);
+
+            fieldNameObject.put(field, "ID");
+            fieldNameObject.put(value, ownerStreamFormatArray);
+            fieldSearch.put("properties", fieldNameObject);
+
+            /*добавляем поле проекта к стриму*/
+            filterArray.put(fieldSearch);
+            //_____________
+
+        }
+
+        if (systemList.size() > 0)
+            /*создаем подгруппу System*/ {
+            JSONObject systemUnderGroup = new JSONObject();
+            JSONArray filterGroupsSystemArray = new JSONArray();
+            systemUnderGroup.put(operator, and);
+            systemUnderGroup.put(active, trueField);
+            systemUnderGroup.put(facetId, "SYSTEM");
+            systemUnderGroup.put("filterGroups", filterGroupsSystemArray);
+            searchesJSONArray.put(systemUnderGroup);
+
+            //*создаем фильтр группу для системы
+            JSONObject filterGroupSystemObject = new JSONObject();
+            JSONArray filterArray = new JSONArray();
+            filterGroupSystemObject.put(operator, start);
+            filterGroupSystemObject.put("filters", filterArray);
+
+            /*добавляем фильтр группу для системы*/
+            filterGroupsSystemArray.put(filterGroupSystemObject);
+
+
+            /*создаем поле #1 для системы*/
+            JSONObject fieldSearch = new JSONObject();
+            JSONObject fieldNameObject = new JSONObject();
+
+            fieldSearch.put(operator, start);
+            fieldSearch.put(type, options);
+
+            fieldNameObject.put(field, "ID");
+            fieldNameObject.put(value, systemFormatArray);
+            fieldSearch.put("properties", fieldNameObject);
+
+            /*добавляем поле проекта к стриму*/
+            filterArray.put(fieldSearch);
+            //_____________
+
+        }
+
+
+        /*добавляем первую подгруппу Глоссария*/
+        searchesJSONArray.put(glossaryUnderGroup);
+
+        /*создаем первую   и единственную фильтр группу для подгруппы Глоссария*/
+        JSONObject filterGroupObject = new JSONObject();
+        JSONArray filterArray = new JSONArray();
+        filterGroupObject.put(operator, start);
+        filterGroupObject.put("filters", filterArray);
+
+        /*добавляем фильтр группу для Глоссария*/
+        filterGroupsGlossaryArray.put(filterGroupObject);
+
+
+        /*создаем поле #1 для поиска*/
+        JSONObject fieldSearch = new JSONObject();
+        JSONObject fieldNameObject = new JSONObject();
+
+        fieldSearch.put(operator, start);
+        fieldSearch.put(type, "value");
+
+        fieldNameObject.put(field, "name");
+        fieldNameObject.put(value, text);
+        fieldSearch.put("properties", fieldNameObject);
+
+        /*добавляем поле поиска к фильтру*/
+        filterArray.put(fieldSearch);
+        //_____________
+
+        /*создаем поле №2 для статуса аксона*/
+        JSONObject fieldAxonStatus = new JSONObject();
+        JSONObject fieldStatusObject = new JSONObject();
+
+        fieldAxonStatus.put(operator, and);
+        fieldAxonStatus.put(type, options);
+
+        fieldStatusObject.put(field, "axonStatus");
+        fieldStatusObject.put(value, "1,3");
+
+        fieldAxonStatus.put("properties", fieldStatusObject);
+
+        /*добавляем поле статуса к фильтру*/
+        filterArray.put(fieldAxonStatus);
+        //_____________
+
+
+        /*создаем поле №3 для доступа */
+        JSONObject fieldAccessControlObject = new JSONObject();
+        JSONObject fieldAccessControl = new JSONObject();
+
+        fieldAccessControlObject.put(operator, and);
+        fieldAccessControlObject.put(type, options);
+
+        fieldAccessControl.put(field, "accessControl");
+        fieldAccessControl.put(value, "1");
+
+        fieldAccessControlObject.put("properties", fieldAccessControl);
+
+        /*добавляем поле доступа к фильтру*/
+        filterArray.put(fieldAccessControlObject);
+        //_____________
+
+        /*создаем поле №4 для системы */
+        if (typeOfObjectsList.size() > 0) {
+            JSONObject fieldSystemObject = new JSONObject();
+            JSONObject fieldSystem = new JSONObject();
+
+            fieldSystemObject.put(operator, and);
+            fieldSystemObject.put(type, options);
+
+            fieldSystem.put(field, "type");
+            fieldSystem.put(value, typeOfObjectsFormatArray);
+
+            fieldSystemObject.put("properties", fieldSystem);
+
+            /*добавляем поле системы к фильтру*/
+            filterArray.put(fieldSystemObject);
+        }
+        //_____________
+
+        /*создаем поле №5 для банка */
+        if (ownerBankList.size() > 0) {
+            JSONObject fieldOwnerBankObject = new JSONObject();
+            JSONObject fieldOwnerBank = new JSONObject();
+
+            fieldOwnerBankObject.put(operator, and);
+            fieldOwnerBankObject.put(type, options);
+
+            fieldOwnerBank.put(field, "Владелецданных");
+            fieldOwnerBank.put(value, ownerBankFormatArray);
+
+            fieldOwnerBankObject.put("properties", fieldOwnerBank);
+
+            /*добавляем поле системы к фильтру*/
+            filterArray.put(fieldOwnerBankObject);
+        }
+        //_____________
 
         return resultJsonObject;
 

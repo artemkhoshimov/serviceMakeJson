@@ -3,27 +3,29 @@
     {
       "typeOfObjects": [
         "3",
-        "6",
-        "9"
+        "7"
       ]
     },
     {
       "typeOwnerBankObject": [
-        "113"
+        "113",
+        "101"
       ]
     },
     {
       "typeOwnerStreamObjects": [
-        "47"
+        "23",
+        "45"
       ]
     },
     {
       "typeSystemObjects": [
-        "599"
+        "1",
+        "484"
       ]
     }
   ],
   "paramsText": {
-    "text": "d"
+    "text": "hfghfg"
   }
 }
