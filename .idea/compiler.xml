@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="NewGenerateJsonObject" />
         <module name="testService" />
+        <module name="serviceMakeJson" />
       </profile>
     </annotationProcessing>
   </component>

@@ -1,0 +1,29 @@
+{
+  "filter": [
+    {
+      "typeOfObjects": [
+        "3",
+        "6",
+        "9"
+      ]
+    },
+    {
+      "typeOwnerBankObject": [
+        "113"
+      ]
+    },
+    {
+      "typeOwnerStreamObjects": [
+        "47"
+      ]
+    },
+    {
+      "typeSystemObjects": [
+        "599"
+      ]
+    }
+  ],
+  "paramsText": {
+    "text": "d"
+  }
+}

@@ -1,0 +1,108 @@
+[
+  {
+    "facetId": "GLOSSARY",
+    "totalItems": 17044,
+    "totalHits": 1,
+    "fields": [
+      "id",
+      "name",
+      "type",
+      "description",
+      "Владелецданных"
+    ],
+    "items": [
+      {
+        "ref": "#43:14722",
+        "id": "20693",
+        "values": [
+          "20693",
+          "Данные контактных лиц клиентского менеджера на стороне клиентов КИБ / *",
+          "Сущность",
+          "КОНСТАНТА определение",
+          "Департамент корпоративных кредитных рисков"
+        ],
+        "relationships": [
+          {
+            "toFacet": "SYSTEM",
+            "relationships": [
+              {
+                "id": "8",
+                "relTypeId": 3,
+                "relTypeName": "Мастер-система – текущая"
+              },
+              {
+                "id": "977",
+                "relTypeId": 4,
+                "relTypeName": "Мастер-система – целевая"
+              }
+            ]
+          },
+          {
+            "toFacet": "PROJECT",
+            "relationships": [
+              {
+                "id": "77",
+                "relTypeId": 1,
+                "relTypeName": "Владеет"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "facetId": "DATAQUALITY",
+    "totalItems": 2412,
+    "totalHits": 0
+  },
+  {
+    "facetId": "PROJECT",
+    "totalItems": 274,
+    "totalHits": 1,
+    "fields": [
+      "id",
+      "name"
+    ],
+    "items": [
+      {
+        "ref": "#116:86",
+        "id": "77",
+        "values": [
+          "77",
+          "Операционный CRM корпоративного *"
+        ]
+      }
+    ]
+  },
+  {
+    "facetId": "SYSTEM",
+    "totalItems": 1251,
+    "totalHits": 2,
+    "fields": [
+      "id",
+      "name",
+      "IDRIS"
+    ],
+    "items": [
+      {
+        "ref": "#31:41",
+        "id": "977",
+        "values": [
+          "977",
+          "Активности с корпоративным *",
+          "17178"
+        ]
+      },
+      {
+        "ref": "#31:12",
+        "id": "8",
+        "values": [
+          "8",
+          "ПКБ (КП)",
+          "498"
+        ]
+      }
+    ]
+  }
+]
